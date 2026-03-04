@@ -74,6 +74,91 @@ def load_damageModifiers():
         print(f"Error: {e}")
         return {}
 
+def load_siegestats():
+    try:
+        with open(r"data\siegestats.json", "r", encoding="utf-8") as file:
+            raw = json.load(file)
+        by_tier = {}
+        for row in raw:
+            if not isinstance(row, dict):
+                continue
+
+            tier = row.get("Tier")
+            if tier is None:
+                continue
+
+            # normalize level key to int
+            try:
+                tier = int(tier)
+            except (ValueError, TypeError):
+                continue
+
+            by_tier[tier] = StatObject(row)
+
+        return by_tier
+
+        
+    except FileNotFoundError:
+        print("Error: The file 'siegestats.json' was not found.")
+        return {}
+    except json.JSONDecodeError as e:
+        print(f"Error: Failed to decode JSON from the file. Details: {e}")
+        return {}
+    except TypeError as e:
+        print(f"Error: {e}")
+        return {}
+
+def load_sophealth():
+    try:
+        with open(r"data\sop_wallhealth.json", "r", encoding="utf-8") as file:
+            raw = json.load(file)
+        by_star = {}
+        for row in raw:
+            if not isinstance(row, dict):
+                continue
+
+            star = row.get("Stars")
+            if star is None:
+                continue
+
+            by_star[star] = StatObject(row)
+
+        return by_star
+        
+    except FileNotFoundError:
+        print("Error: The file 'sop_wallhealth.json' was not found.")
+        return {}
+    except json.JSONDecodeError as e:
+        print(f"Error: Failed to decode JSON from the file. Details: {e}")
+        return {}
+    except TypeError as e:
+        print(f"Error: {e}")
+        return {}
+
+def load_maxedStats():
+    try:
+        with open(r"data\MaxedStats.json", "r", encoding="utf-8") as file:
+            raw = json.load(file)
+
+        maxed = raw.get("MaxedStats")
+        if not isinstance(maxed, dict):
+            raise TypeError("MaxedStats.json must contain top-level key 'MaxedStats' as an object.")
+
+        result = {}
+        for troop_type, stats in maxed.items():
+            result[troop_type] = StatObject(stats)
+
+        return result
+
+    except FileNotFoundError:
+        print("Error: The file 'MaxedStats.json' was not found.")
+        return {}
+    except json.JSONDecodeError as e:
+        print(f"Error: Failed to decode JSON from the file. Details: {e}")
+        return {}
+    except TypeError as e:
+        print(f"Error: {e}")
+        return {}
 
 class StatObject:
     def __init__(self, d):
