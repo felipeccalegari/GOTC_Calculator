@@ -1,23 +1,69 @@
 # GOTC Calculator
 
-A simple tool to calculate player stats, dragon vs dragon battle outcomes, and PvP battle results for Game of Thrones Conquest (GOTC) mobile game.
+A Streamlit app with multiple calculators for player planning in Game of Thrones Conquest (GOTC).
 
 ## Features
-- Compute player offensive/defensive stats and effective power
-- Simulate dragon vs dragon battles with basic combat resolution
-- Simulate PvP battles between players (troop, commander, dragon effects)
-- Command-line and library usage
+- Stats Calculator: compute offensive/defensive values and compare against maxed references.
+- Dragon vs Dragon Calculator: estimate dragon duel damage and dragon healing gold cost.
+- Battle Simulator: estimate troop losses in rally/reinforcement scenarios.
+- Wall Damage Calculator: estimate wall damage and break thresholds.
 
-## Quick Start
-1. Clone or download the repository to your machine.
-2. Install dependencies (if any).
-3. Run the calculator or import as a library in your scripts.
+## Prerequisites
+- Python 3.10+ (recommended)
+- `pip`
 
-## Usage Examples
-- Calculate player stats: provide base stats, equipment, and buffs to get final values.
-- Dragon vs Dragon: supply dragon stats (attack, defense, HP, level, skills) and get expected winner, damage, and rounds.
-- PvP Battle: supply attacker and defender profiles (troops, commanders, dragons, buffs) and get outcome probabilities and summary.
+## Setup
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd GOTC_Calculator
+```
 
-## Notes
-- Results use deterministic/simplified rules; adjust parameters to match game mechanics or patches.
-- Intended as an auxiliary planning tool, not affiliated with the game publisher.
+2. (Recommended but not mandatory) Create and activate a virtual environment:
+```bash
+python -m venv .venv
+```
+
+Windows (PowerShell):
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+macOS/Linux:
+```bash
+source .venv/bin/activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Run The App
+```bash
+streamlit run landing.py
+```
+
+By default, Streamlit opens on:
+- Local: `http://localhost:8501`
+- Network (LAN): `http://<your-ip>:8501`
+
+## Project Structure
+- `landing.py`: app entry page
+- `pages/1_Dragon_Vs_Dragon.py`: dragon duel calculator
+- `pages/2_Stats_Calculator.py`: stats calculator
+- `pages/3_Battle_Simulator.py`: battle simulation
+- `pages/4_Wall_Damage.py`: wall damage calculator
+- `data/`: JSON data tables used by calculators
+
+## Notes And Disclaimer
+- Results are estimates based on simplified formulas and available game data.
+- This project is an auxiliary planning tool and is not affiliated with WB Games.
+- All game rights and intellectual property belong to their respective owners.
+
+## Troubleshooting
+- If Streamlit does not open automatically, manually open `http://localhost:8501`.
+- If phone/LAN access fails, confirm:
+  - same Wi-Fi network
+  - router client isolation is disabled
+  - Windows firewall allows inbound TCP `8501`
