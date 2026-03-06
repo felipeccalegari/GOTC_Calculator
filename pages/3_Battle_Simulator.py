@@ -490,31 +490,47 @@ def battle_rally_vs_multi():
         st.session_state.rally_multi_att_forms = 6
     if "rally_multi_def_forms" not in st.session_state:
         st.session_state.rally_multi_def_forms = 3
+    st.session_state.rally_multi_att_forms = max(1, int(st.session_state.rally_multi_att_forms))
+    st.session_state.rally_multi_def_forms = max(1, int(st.session_state.rally_multi_def_forms))
+
+    def _reset_rally_forms():
+        # Clear dynamic form state so reset is deterministic in a single click.
+        for k in list(st.session_state.keys()):
+            if k.startswith("rally_att_") or k.startswith("rally_def_"):
+                st.session_state.pop(k, None)
+        st.session_state.rally_multi_att_forms = 6
+        st.session_state.rally_multi_def_forms = 3
 
     st.write("### Forms")
-    att_controls = st.columns(4)
+    control_cols = [1, 1, 1, 1]
+    att_controls = st.columns(control_cols)
     with att_controls[0]:
-        if st.button("+ Attacker Form", key="add_attacker_form"):
+        if st.button("Add Attacker", key="add_attacker_form", use_container_width=True):
             st.session_state.rally_multi_att_forms += 1
     with att_controls[1]:
-        if st.button("- Attacker Form", key="remove_attacker_form", disabled=st.session_state.rally_multi_att_forms <= 1):
-            st.session_state.rally_multi_att_forms -= 1
+        if st.button("Remove Attacker", key="remove_attacker_form", disabled=st.session_state.rally_multi_att_forms <= 1, use_container_width=True):
+            st.session_state.rally_multi_att_forms = max(1, st.session_state.rally_multi_att_forms - 1)
     with att_controls[2]:
         st.caption(f"Attacker forms: {st.session_state.rally_multi_att_forms}")
     with att_controls[3]:
-        if st.button("Reset 6v3", key="reset_rally_forms"):
-            st.session_state.rally_multi_att_forms = 6
-            st.session_state.rally_multi_def_forms = 3
+        st.button(
+            "Reset 6v3",
+            key="reset_rally_forms",
+            use_container_width=True,
+            on_click=_reset_rally_forms,
+        )
 
-    def_controls = st.columns(3)
+    def_controls = st.columns(control_cols)
     with def_controls[0]:
-        if st.button("+ Defender Form", key="add_defender_form"):
+        if st.button("Add Defender", key="add_defender_form", use_container_width=True):
             st.session_state.rally_multi_def_forms += 1
     with def_controls[1]:
-        if st.button("- Defender Form", key="remove_defender_form", disabled=st.session_state.rally_multi_def_forms <= 1):
-            st.session_state.rally_multi_def_forms -= 1
+        if st.button("Remove Defender", key="remove_defender_form", disabled=st.session_state.rally_multi_def_forms <= 1, use_container_width=True):
+            st.session_state.rally_multi_def_forms = max(1, st.session_state.rally_multi_def_forms - 1)
     with def_controls[2]:
         st.caption(f"Defender forms: {st.session_state.rally_multi_def_forms}")
+    with def_controls[3]:
+        st.empty()
 
     def _apply_attacker_defaults(slot_idx: int):
         key_prefix = f"rally_att_{slot_idx}"
@@ -559,74 +575,6 @@ def battle_rally_vs_multi():
         if key not in st.session_state:
             st.session_state[key] = default
 
-    attacker_field_suffixes = [
-        "name",
-        "troop_type",
-        "tier",
-        "msize",
-        "base_att",
-        "base_def",
-        "base_hp",
-        "atk_vs_inf",
-        "atk_vs_rng",
-        "atk_vs_cav",
-        "def_vs_inf",
-        "def_vs_rng",
-        "def_vs_cav",
-        "marcher_att",
-        "marcher_def",
-        "marcher_hp",
-    ]
-    defender_field_suffixes = [
-        "name",
-        "troop_type",
-        "tier",
-        "msize",
-        "base_att",
-        "base_def",
-        "base_hp",
-        "atk_vs_inf",
-        "atk_vs_rng",
-        "atk_vs_cav",
-        "def_vs_inf",
-        "def_vs_rng",
-        "def_vs_cav",
-        "atk_sop",
-        "def_sop",
-        "hp_sop",
-        "defender_att",
-        "defender_def",
-        "defender_hp",
-    ]
-
-    def _remove_attacker_form(slot_idx: int):
-        total = st.session_state.rally_multi_att_forms
-        if total <= 1:
-            return
-        for i in range(slot_idx, total - 1):
-            for suffix in attacker_field_suffixes:
-                src = f"rally_att_{i + 1}_{suffix}"
-                dst = f"rally_att_{i}_{suffix}"
-                if src in st.session_state:
-                    st.session_state[dst] = st.session_state[src]
-        for suffix in attacker_field_suffixes:
-            st.session_state.pop(f"rally_att_{total - 1}_{suffix}", None)
-        st.session_state.rally_multi_att_forms -= 1
-
-    def _remove_defender_form(slot_idx: int):
-        total = st.session_state.rally_multi_def_forms
-        if total <= 1:
-            return
-        for i in range(slot_idx, total - 1):
-            for suffix in defender_field_suffixes:
-                src = f"rally_def_{i + 1}_{suffix}"
-                dst = f"rally_def_{i}_{suffix}"
-                if src in st.session_state:
-                    st.session_state[dst] = st.session_state[src]
-        for suffix in defender_field_suffixes:
-            st.session_state.pop(f"rally_def_{total - 1}_{suffix}", None)
-        st.session_state.rally_multi_def_forms -= 1
-
     def render_attacker_form(slot_idx: int, default_troop: str):
         key_prefix = f"rally_att_{slot_idx}"
         _ensure_state(f"{key_prefix}_name", f"Attacker {slot_idx + 1}")
@@ -634,22 +582,12 @@ def battle_rally_vs_multi():
         troop_key = f"{key_prefix}_troop_type"
         _ensure_state(troop_key, default_troop)
         troop_type = st.selectbox("Troop Type", options=["Infantry", "Ranged", "Cavalry"], key=troop_key)
-        form_action_cols = st.columns(2)
-        with form_action_cols[0]:
-            st.form_submit_button(
-                "Load Defaults",
-                key=f"{key_prefix}_load_defaults",
-                on_click=_apply_attacker_defaults,
-                kwargs={"slot_idx": slot_idx},
-            )
-        with form_action_cols[1]:
-            st.form_submit_button(
-                "Remove",
-                key=f"{key_prefix}_remove_form",
-                on_click=_remove_attacker_form,
-                kwargs={"slot_idx": slot_idx},
-                disabled=st.session_state.rally_multi_att_forms <= 1,
-            )
+        st.form_submit_button(
+            "Load Defaults",
+            key=f"{key_prefix}_load_defaults",
+            on_click=_apply_attacker_defaults,
+            kwargs={"slot_idx": slot_idx},
+        )
         d = attacker_defaults[troop_type]
         _ensure_state(f"{key_prefix}_tier", 11)
         _ensure_state(f"{key_prefix}_msize", 400000)
@@ -692,22 +630,12 @@ def battle_rally_vs_multi():
         troop_key = f"{key_prefix}_troop_type"
         _ensure_state(troop_key, default_troop)
         troop_type = st.selectbox("Troop Type", options=["Infantry", "Ranged", "Cavalry"], key=troop_key)
-        form_action_cols = st.columns(2)
-        with form_action_cols[0]:
-            st.form_submit_button(
-                "Load Defaults",
-                key=f"{key_prefix}_load_defaults",
-                on_click=_apply_defender_defaults,
-                kwargs={"slot_idx": slot_idx},
-            )
-        with form_action_cols[1]:
-            st.form_submit_button(
-                "Remove",
-                key=f"{key_prefix}_remove_form",
-                on_click=_remove_defender_form,
-                kwargs={"slot_idx": slot_idx},
-                disabled=st.session_state.rally_multi_def_forms <= 1,
-            )
+        st.form_submit_button(
+            "Load Defaults",
+            key=f"{key_prefix}_load_defaults",
+            on_click=_apply_defender_defaults,
+            kwargs={"slot_idx": slot_idx},
+        )
         d = defender_defaults[troop_type]
         _ensure_state(f"{key_prefix}_tier", 11)
         _ensure_state(f"{key_prefix}_msize", 400000)

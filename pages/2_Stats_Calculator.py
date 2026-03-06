@@ -1,46 +1,73 @@
 import streamlit as st
-from calculator import statsCalculator, statsComparator
+from calculator import statsComparator
 import pandas as pd
 
-header = st.header("Stats Calculator 📊")
-st.set_page_config(page_title="Stats Calculator", page_icon="📊")
-st.sidebar.header("Stats Calculator 📊")
+st.set_page_config(page_title="Stats Calculator", page_icon="??")
+st.header("Stats Calculator ??")
+st.sidebar.header("Stats Calculator ??")
 
-st.markdown("Enter your troop stats below WITHOUT % symbol (e.g., enter 1500 for 1500%) for Attacker scenario and Defender scenario. The calculator will provide your effective stats on PVP occasions\n")
+st.markdown(
+    "Enter your troop stats below WITHOUT % symbol (e.g., enter 1500 for 1500%) for "
+    "Attacker scenario and Defender scenario. The calculator will provide your effective stats on "
+    "PVP occasions\n"
+)
+
+
+def _parse_float_input(v, label: str) -> float:
+    s = str(v).strip().replace("%", "").replace(",", ".")
+    if s == "":
+        return 0.0
+    try:
+        return float(s)
+    except ValueError as e:
+        raise ValueError(f"Invalid number for '{label}': {v}") from e
+
 
 def stats_submitted():
     st.header("PVP Stats and Comparison vs Maxed Stats")
 
     if submitted:
         st.subheader("Comparison Results")
-        comparison_results = statsComparator(
-            troop_type_json=troopTypeAtt,
-            attacker={
-                "baseatkbuff": float(baseTroopTypeBuffAtt),
-                "marcheratkbuff": float(baseMarcherAttackBuffAtt),
-                "atkvscav": float(atkvscavAtt),
-                "atkvsinf": float(atkvsinfAtt),
-                "atkvsrng": float(atkvsrngAtt),
-            },
-            defender={
-                "basedefbuff": float(baseTroopTypeDefenseBuffDef),
-                "basehealthbuff": float(baseTroopTypeHealthBuffDef),
-                "defatsopbuff": float(defatsopDef),
-                "healthatsopbuff": float(healthatsopDef),
-                "defvscav": float(defvscavDef),
-                "defvsinf": float(defvsinfDef),
-                "defvsrng": float(defvsrngDef),
-                "defdefensebuff": float(defDefenseBuffDef),
-                "defhealthbuff": float(defHealthBuffDef),
+        try:
+            attacker_data = {
+                "baseatkbuff": _parse_float_input(baseTroopTypeBuffAtt, "Base Troop Type Attack Buff"),
+                "marcheratkbuff": _parse_float_input(baseMarcherAttackBuffAtt, "Marcher Attack Buff"),
+                "atkvscav": _parse_float_input(atkvscavAtt, "Attack vs Cavalry Buff"),
+                "atkvsinf": _parse_float_input(atkvsinfAtt, "Attack vs Infantry Buff"),
+                "atkvsrng": _parse_float_input(atkvsrngAtt, "Attack vs Ranged Buff"),
             }
-        )
+            defender_data = {
+                "basedefbuff": _parse_float_input(baseTroopTypeDefenseBuffDef, "Base Troop Type Defense Buff"),
+                "basehealthbuff": _parse_float_input(baseTroopTypeHealthBuffDef, "Base Troop Type Health Buff"),
+                "defatsopbuff": _parse_float_input(defatsopDef, "Defense at SOP Buff"),
+                "healthatsopbuff": _parse_float_input(healthatsopDef, "Health at SOP Buff"),
+                "defvscav": _parse_float_input(defvscavDef, "Defense vs Cavalry Buff"),
+                "defvsinf": _parse_float_input(defvsinfDef, "Defense vs Infantry Buff"),
+                "defvsrng": _parse_float_input(defvsrngDef, "Defense vs Ranged Buff"),
+                "defdefensebuff": _parse_float_input(defDefenseBuffDef, "Defender Defense Buff"),
+                "defhealthbuff": _parse_float_input(defHealthBuffDef, "Defender Health Buff"),
+            }
+        except ValueError as e:
+            st.error(str(e))
+            return
+
+        try:
+            comparison_results = statsComparator(
+                troop_type_json=troopTypeAtt,
+                attacker=attacker_data,
+                defender=defender_data,
+            )
+        except Exception as e:
+            st.error(f"Could not calculate stats: {e}")
+            return
+
         atk_comp = comparison_results["comparison"]["attacker_vs_maxed"]
         k_cav = "Total Attack vs Cavalry"
         k_rng = "Total Attack vs Ranged"
         k_inf = "Total Attack vs Infantry"
 
-        def_comp = comparison_results["comparison"]["defender_vs_maxed"]  
-        k_hp  = "Total Health"
+        def_comp = comparison_results["comparison"]["defender_vs_maxed"]
+        k_hp = "Total Health"
         k_defcav = "Total Defense vs Cavalry"
         k_definf = "Total Defense vs Infantry"
         k_defrng = "Total Defense vs Ranged"
@@ -100,15 +127,13 @@ def stats_submitted():
         st.subheader("Defender Results")
         st.dataframe(dfDef, use_container_width=True)
 
-TierAtt = st.number_input("Troop Tier (1-12)", min_value=1, max_value=12, value=1, step=1, key="trooptier")
+
 troopTypeAtt = st.selectbox("Troop Type", ["Infantry", "Ranged", "Cavalry"], key="trooptype")
 
 with st.form("stats_form"):
     attackerStats, defenderStats = st.columns(2)
     with attackerStats:
-        
         st.subheader("Attacker Stats")
-        
         baseTroopTypeBuffAtt = st.text_input("Base Troop Type Attack Buff", "0", key="attackerbasetrooptypebuff")
         baseMarcherAttackBuffAtt = st.text_input("Marcher Attack Buff", "0", key="attackermarcheratkbuff")
         atkvscavAtt = st.text_input("Attack vs Cavalry Buff", "0", key="attackeratkvscav")
@@ -128,8 +153,8 @@ with st.form("stats_form"):
 
         defDefenseBuffDef = st.text_input("Defender Defense Buff", "0", key="defenderdefenderdefbuff")
         defHealthBuffDef = st.text_input("Defender Health Buff", "0", key="defenderdefenderhealthbuff")
-        submitted = st.form_submit_button("Submit")
-    if submitted:
-        st.write("Form submitted successfully!")
-        stats_submitted()
 
+    submitted = st.form_submit_button("Submit")
+
+if submitted:
+    stats_submitted()
