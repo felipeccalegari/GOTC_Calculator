@@ -2,9 +2,9 @@ import streamlit as st
 from calculator import statsComparator
 import pandas as pd
 
-st.set_page_config(page_title="Stats Calculator", page_icon="??")
-st.header("Stats Calculator ??")
-st.sidebar.header("Stats Calculator ??")
+st.set_page_config(page_title="Stats Calculator", page_icon="📊")
+st.header("Stats Calculator 📊")
+st.sidebar.header("Stats Calculator 📊")
 
 st.markdown(
     "Enter your troop stats below WITHOUT % symbol (e.g., enter 1500 for 1500%) for "

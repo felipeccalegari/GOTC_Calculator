@@ -3,8 +3,8 @@ from models import DragonInfo
 from calculator import dvdcalc_duel
 import pandas as pd
 
-st.set_page_config(page_title="Dragon vs Dragon Calculator", page_icon=":dragon:", layout="wide")
-st.header("Dragon Calculator")
+st.set_page_config(page_title="Dragon vs Dragon Calculator", page_icon="🐉", layout="wide")
+st.header("Dragon Calculator 🐉")
 st.sidebar.header("Dragon vs Dragon Calculator")
 st.markdown("Enter Attacker and Defender's Dragon stats below **WITHOUT** % symbol for buffs (e.g., enter 1500 for 1500%).")
 
