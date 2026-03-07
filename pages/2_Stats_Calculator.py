@@ -88,7 +88,7 @@ def stats_submitted():
                 "Attack vs Infantry": atk_comp[k_inf]["maxed"],
             },
             {
-                "Player": "Difference",
+                "Player": "Percent Difference",
                 "Troop Type": troopTypeAtt,
                 "Attack vs Cavalry": atk_comp[k_cav]["diff_pct"],
                 "Attack vs Ranged": atk_comp[k_rng]["diff_pct"],
@@ -114,7 +114,7 @@ def stats_submitted():
                 "Defense vs Ranged": def_comp[k_defrng]["maxed"],
             },
             {
-                "Player": "Difference",
+                "Player": "Percent Difference",
                 "Troop Type": troopTypeAtt,
                 "Health": def_comp[k_hp]["diff_pct"],
                 "Defense vs Cavalry": def_comp[k_defcav]["diff_pct"],
