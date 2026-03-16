@@ -23,9 +23,9 @@
         "Ranged": {
             "Attack": {
                 "Attack": 1308.81,
-                "MarcherAttack": 7460.18,
+                "MarcherAttack": 7507.75,
                 "vsCav": 378.17,
-                "vsInf": 1658.84,
+                "vsInf": 1707.8,
                 "vsRanged": 1483.16
             },
             "Defense": {
